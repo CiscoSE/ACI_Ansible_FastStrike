@@ -1,2 +1,1 @@
-ABCD
 #training_github
