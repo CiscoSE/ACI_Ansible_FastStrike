@@ -1,0 +1,5 @@
+TENANT,VRF,BD,GW,MASK,AP,EPG,CONTRACT,SCOPE,TYPE,SUBJECT,ENTRY,FILTER,PROTOCOL,PORT
+DEV,VRF-DEV,BD-DEV1,10.10.10.254,24,AP-DEV,EPG-DEV1,ctr-dev1-dev2,global,provider,subj-dev1-dev2,entry-dev1-dev2,filter-dev1-dev2,tcp,80
+DEV,VRF-DEV,BD-DEV2,20.20.20.254,24,AP-DEV,EPG-DEV2,ctr-dev1-dev2,global,consumer,subj-dev1-dev2,entry-dev1-dev2,filter-dev1-dev2,tcp,80
+PRO,VRF-PRO,BD-PRO1,11.11.11.254,24,AP-PRO,EPG-PRO1,ctr-pro1-pro2,context,consumer,subj-pro1-pro2,entry-pro1-prod2,filter-pro1-prod2,tcp,443
+PRO,VRF-PRO,BD-PRO2,21.21.21.254,24,AP-PRO,EPG-PRO2,ctr-pro1-pro2,context,provider,subj-pro1-pro2,entry-pro1-prod2,filter-pro1-prod2,tcp,443

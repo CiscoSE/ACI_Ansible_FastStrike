@@ -1,0 +1,191 @@
+---
+# ==========================================================================
+# Ansible playbook configuring ACI tenant construct (tnt/vrf/bd/anp/epg/ctr)
+# Created on Jan 15, 2019
+# Author: Tom Qian, Henry Carmouche, and Mark Ellwanger
+# ==========================================================================
+
+- hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  tasks:
+    - name: parse csv and make vars file
+      command: "python parse_csv.py aci-tnt-vrf-bd-epg-ctr.csv"
+
+- name: Configure TNT VRF BD EPG CTR
+  hosts: localhost 
+  connection: local
+  gather_facts: no
+  
+
+  tasks:
+  - name: Load Password 
+    include_vars: "./password.yml"
+    
+  - name: Load Variables
+    include_vars: 
+      file: aci-tnt-vrf-bd-epg-ctr.csv.yml
+      name: input
+      
+  - name: Create Tenant
+    aci_tenant:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      description: "Tenant configured by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+
+  - name: Create VRF
+    aci_vrf:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      vrf: "{{ item.VRF }}"
+      description: "VRF configured by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+
+  - name: Create BD
+    aci_bd:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      vrf: "{{ item.VRF }}" 
+      bd: "{{ item.BD }}"
+      enable_routing: yes
+      arp_flooding: no
+      l2_unknown_unicast: proxy 
+      description: "BD configured by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+
+  - name: Create BD Subnet
+    aci_bd_subnet:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      bd: "{{ item.BD }}"
+      gateway: "{{ item.GW }}"
+      mask: "{{ item.MASK }}"
+      scope: "private"
+      description: "BD subnet added by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+
+  - name: Create AP
+    aci_ap:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      ap: "{{ item.AP }}"
+      description: "app profile configured by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+
+  - name: Create EPG
+    aci_epg:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      ap: "{{ item.AP }}"
+      epg: "{{ item.EPG }}"
+      bd: "{{ item.BD }}"
+      description: "Web EPG configured by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
+    
+  - name: Creating Contract
+    aci_contract:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      contract: "{{ item.CONTRACT }}"
+      tenant: "{{ item.TENANT  }}"
+      scope: "{{ item.SCOPE }}"
+      description: "Contract created by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"      
+
+  - name: Add Filter
+    aci_filter:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      filter: "{{ item.FILTER  }}"
+      tenant: "{{ item.TENANT  }}"
+      description: "Filter created by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"      
+
+  - name: Add Filter Entry
+    aci_filter_entry:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      entry: "{{ item.ENTRY }}"
+      tenant: "{{ item.TENANT  }}"
+      ether_type: ip
+      ip_protocol: "{{ item.PROTOCOL }}"
+      dst_port: "{{ item.PORT }}"
+      filter: "{{ item.FILTER }}"
+      description: "Filter Entry created by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"     
+
+  - name: Adding Subject
+    aci_contract_subject:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      contract: "{{ item.CONTRACT }}"
+      subject: "{{ item.SUBJECT }}"
+      reverse_filter: yes
+      description: "Subject created by Ansible"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"     
+
+  - name: Bind Subject to Filter
+    aci_contract_subject_to_filter:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      contract: "{{ item.CONTRACT }}"
+      filter: "{{ item.FILTER }}"
+      subject: "{{ item.SUBJECT }}"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"      
+
+  - name: Bind EPG to Contract
+    aci_epg_to_contract:
+      hostname: "{{ inventory_hostname }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      tenant: "{{ item.TENANT }}"
+      epg: "{{ item.EPG }}"
+      ap: "{{ item.AP }}"
+      contract: "{{ item.CONTRACT }}"
+      contract_type: "{{ item.TYPE }}"
+      validate_certs: no
+      state: present
+    loop: "{{ input.raw_data }}"
