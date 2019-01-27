@@ -1,4 +1,4 @@
-# ACI-FastStrike – Automate Tenant creation for new Acquisitions / Mergers
+# ACI-FastStrike – Automate Tenant Profile Creation for New Acquisitions / Mergers
 	
 - This ansible playbook allows you to parse a CSV file that includes the needed attributes to automate and orchestrate creation of new tenants.  Ansible uses playbooks written in YAML to define the tasks we want to execute against an ACI fabric and the CSV file will be converted to YAML. 
 
