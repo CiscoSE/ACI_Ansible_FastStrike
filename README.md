@@ -25,5 +25,6 @@ Ansible Documentation Reference
 
 •	Main Documentation Index: https://docs.ansible.com
 •	Ansible Installation: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html	
-•	Ansible Network Module - ACI:  https://docs.ansible.com/ansible/latest/modules/list_of_network_modules.html	
+
+•  Ansible Network Module - ACI:  https://docs.ansible.com/ansible/latest/modules/list_of_network_modules.html	
 
